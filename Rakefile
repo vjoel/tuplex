@@ -1,3 +1,5 @@
+$LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), "lib"))
+
 require 'rake'
 require 'rake/testtask'
 
@@ -16,7 +18,7 @@ def tag
 end
 
 desc "Build extension"
-task :ext => "ext/tuplex/tuplex.so"
+task :ext ###=> "ext/tuplex/tuplex.so"
 
 file "ext/tuplex/tuplex.so" =>
        FileList["ext/tuplex/*.{c,h}", "ext/tuplex/Makefile"] do
@@ -80,7 +82,7 @@ namespace :release do
     sh "git log #{latest}.."
   end
 
-  task :is_new_version => :version do
+  task :is_new_version do
     abort "#{tag} exists; update version!" unless `git tag -l #{tag}`.empty?
   end
 end

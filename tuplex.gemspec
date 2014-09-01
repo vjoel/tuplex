@@ -1,4 +1,6 @@
-require 'tuplex'
+$LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), "lib"))
+
+require 'tuplex/version'
 
 Gem::Specification.new do |s|
   s.name = "tuplex"

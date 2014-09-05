@@ -18,14 +18,34 @@ end
   store i => nil        # different signature for each i
 end
 
-puts "\n\nIterating..."
+puts "\n\nIterating"
 db.each do |k,v|
   p unpack_val(v)
 end
 
-puts "\n\nSearching..."
+print "\n\nSearching"
 db.each do |k,v|
+  print "."
   if val_equals_tuple(v, [1, 2, 5])
-    puts "found!"
+    print "found!"
+    break
   end
+end
+puts
+
+print "\n\nFast lookup"
+t = [1, 2, 5]
+th = make_val_hash(t) # optimization
+key = make_key(t)
+db.cursor do |c|
+  k, v = c.set_range(key)
+  while k == key
+    print "."
+    if val_equals_tuple(v, t, th)
+      print "found!"
+      break
+    end
+    k, v = c.next
+  end
+  puts
 end

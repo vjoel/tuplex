@@ -6,7 +6,7 @@ include Tuplex
 
 dir = Dir.mktmpdir
 env = LMDB.new dir
-db = env.database("tuples", create: true)
+db = env.database("tuples", create: true, dupsort: true)
 
 t = {a: 1, b: 2}
 db[make_key(t)] = make_val(t)

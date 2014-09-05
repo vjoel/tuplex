@@ -83,4 +83,8 @@ module Tuplex
   def make_val t
     [t.hash].pack("Q>") + MessagePack.pack(t)
   end
+
+  def unpack_val s
+    MessagePack.unpack(s[8..-1])
+  end
 end

@@ -81,10 +81,18 @@ module Tuplex
   end
 
   def make_val t
-    [t.hash].pack("Q>") + MessagePack.pack(t)
+    make_val_hash(t) + MessagePack.pack(t)
+  end
+
+  def make_val_hash t
+    [t.hash].pack("Q>")
   end
 
   def unpack_val s
     MessagePack.unpack(s[8..-1])
+  end
+
+  def val_equals_tuple s, t, th = make_val_hash(t)
+    s[0..7] == th && unpack_val(s) == t
   end
 end

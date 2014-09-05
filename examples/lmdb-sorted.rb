@@ -18,6 +18,14 @@ end
   store i => nil        # different signature for each i
 end
 
+puts "\n\nIterating..."
 db.each do |k,v|
   p unpack_val(v)
+end
+
+puts "\n\nSearching..."
+db.each do |k,v|
+  if val_equals_tuple(v, [1, 2, 5])
+    puts "found!"
+  end
 end

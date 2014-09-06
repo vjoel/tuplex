@@ -29,4 +29,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib", "ext"]
 
   s.required_ruby_version = Gem::Requirement.new("~> 2.0")
+  s.add_dependency 'msgpack', '~> 0'
+  s.add_dependency 'siphash', '~> 0'
 end

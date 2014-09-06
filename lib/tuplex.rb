@@ -1,4 +1,5 @@
 require 'msgpack'
+require 'siphash'
 
 module Tuplex
   module_function
@@ -18,9 +19,31 @@ module Tuplex
     end
   end
 
+  SIP_KEY = "Not secure, change it if you care!"[0..15]
+
+  # Lossy in terms of data types, but that's OK, since we have separate
+  # sig_key (hash on types expressed as data) and val_hash.
+  def dhash t, sip_key = SIP_KEY
+    case t
+    when nil;     dhash("nil", sip_key)
+    when true;    dhash("true", sip_key)
+    when false;   dhash("false", sip_key)
+    when Integer; dhash([t].pack("Q>"), sip_key)
+    when Float;   dhash([t].pack("G"), sip_key)
+    when String;  SipHash.digest(sip_key, t)
+    when Symbol;  dhash(t.to_s, sip_key)
+    when Array
+      dhash(t.map {|ti| dhash(ti, sip_key)}.join, sip_key)
+    when Hash
+      t.inject(0) {|acc,(k,v)|
+        acc ^ dhash([k,v], sip_key) }
+    else raise ArgumentError, "cannot hash #{t.inspect}"
+    end
+  end
+
   SIG_KEY_SIZE = 8
   def sig_key t
-    [signature(t).hash].pack("q")
+    [dhash(signature(t))].pack("q")
   end
 
   def str_sum acc, s
@@ -93,7 +116,7 @@ module Tuplex
   end
 
   def make_val_hash t
-    [t.hash].pack("Q>")
+    [dhash(t)].pack("Q>")
   end
 
   def unpack_val s

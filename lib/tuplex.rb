@@ -63,17 +63,20 @@ module Tuplex
   end
   # def fk(x); "%064b" % float_to_key(x).unpack("Q>"); end
 
+  # More deeply nested data is less significant.
+  NESTING_DISCOUNT = "\0\0"
+
   MAX_SUM_KEY_SIZE = 500
-  def sum_key t, acc = "\0\0"
+  def sum_key t, acc = "", pre = ""
     case t
-    when nil;   str_sum(acc, "\0\0")
-    when false; str_sum(acc, "\0\1")
-    when true;  str_sum(acc, "\0\2")
-    when Numeric; str_sum(acc, "\0" + float_to_key(t.to_f))
-    when String; str_sum(acc, "\0" + t) # truncate here
-    when Symbol; str_sum(acc, "\0" + t.to_s) # and here
-    when Array; t.inject(acc) {|s,v| sum_key(v,s)}
-    when Hash; t.inject(acc) {|s,(k,v)| sum_key(v,s)}
+    when nil;   str_sum(acc, pre + "\0")
+    when false; str_sum(acc, pre + "\1")
+    when true;  str_sum(acc, pre + "\2")
+    when Numeric; str_sum(acc, pre + float_to_key(t.to_f))
+    when String; str_sum(acc, pre + t) # truncate here
+    when Symbol; str_sum(acc, pre + t.to_s) # and here
+    when Array; t.inject(acc) {|s,v| sum_key(v, s, pre + NESTING_DISCOUNT)}
+    when Hash; t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + NESTING_DISCOUNT)}
     else raise ArgumentError, "bad type: #{t.inspect}"
     end
   end

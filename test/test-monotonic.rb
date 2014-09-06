@@ -46,7 +46,9 @@ class TestMonotonic < Minitest::Test
   end
 
   def test_overflow
-    t = ["\xFF"] * 0x102
+    t = ["\xFF"] * 0x10101
+    make_key(t)
+    t << "\xFF"
     assert_raises(RuntimeError) {
       make_key(t)
     }

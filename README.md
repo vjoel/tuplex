@@ -6,7 +6,7 @@ Constructs index keys for tuples.
 What is it for?
 ---
 
-1. Assign keys to tuples (immutable value types) that do not have unique ids (primary keys). This can be used to store a tuplespace in a key-value store.
+1. Assign keys to tuples (immutable value types) that do not have unique ids (primary keys). The keys are not-quite-unique. This can be used to store a tuplespace in a key-value store.
 
 2. Keys for similar tuples should be similar, to keep them close in storage, reducing cache misses and page faults.
 

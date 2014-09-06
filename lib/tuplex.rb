@@ -51,10 +51,15 @@ module Tuplex
 
   def float_to_key x
     if x >= 0
-      [1, expo(x), mant(x)].pack("CS>Q>") # sparse
+      bits = [x].pack("G").unpack("Q>")[0] | 0x8000000000000000
+      # [1, expo(x), mant(x)].pack("CS>Q>") # sparse version
     else
-      [0, -expo(x), -mant(x)].pack("CS>Q>")
+      expo_bits = ((-expo(x)) & 0x7FF) << 52
+      mant_bits = (-mant(x)) & 0x0FFFFFFFFFFFFF
+      bits = expo_bits | mant_bits
+      # [0, -expo(x), -mant(x)].pack("CS>Q>")
     end
+    [bits].pack("Q>")
   end
   # def fk(x); "%064b" % float_to_key(x).unpack("Q>"); end
 

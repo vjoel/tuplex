@@ -54,6 +54,8 @@ However, for tuples of different signatures, the ordering depends only on the si
 
 In other words, all tuples of signature (String, Number) are contiguous in the index, and that contiguous group is separate from tuples of signature (Number, String).
 
+One more thing about nesting: it reduces the significance of the nested data. See [examples/order.rb](examples/order.rb)
+
 Contact
 =======
 

@@ -2,12 +2,16 @@ require 'msgpack'
 require 'siphash'
 
 class Tuplex
-  attr_reader :sip_key
+  attr_reader :sip_key, :nest_prefix
 
   DEFAULT_SIP_KEY = "Not secure, change it if you care!"[0..15]
 
-  def initialize sip_key = DEFAULT_SIP_KEY
+  # More deeply nested data is less significant.
+  DEFAULT_NESTING_DISCOUNT = 2
+
+  def initialize sip_key: DEFAULT_SIP_KEY, nesting_discount: DEFAULT_NESTING_DISCOUNT
     @sip_key = sip_key
+    @nest_prefix = "\0" * nesting_discount
   end
 
   # +t+ can be a tuple or a value in a tuple (that is, an entry in
@@ -85,8 +89,6 @@ class Tuplex
   end
   # def fk(x); "%064b" % float_to_key(x).unpack("Q>"); end
 
-  # More deeply nested data is less significant.
-  NESTING_DISCOUNT = "\0\0"
 
   MAX_SUM_KEY_SIZE = 500
   def sum_key t, acc = "", pre = ""
@@ -97,8 +99,8 @@ class Tuplex
     when Numeric; str_sum(acc, pre + float_to_key(t.to_f))
     when String; str_sum(acc, pre + t) # truncate here
     when Symbol; str_sum(acc, pre + t.to_s) # and here
-    when Array; t.inject(acc) {|s,v| sum_key(v, s, pre + NESTING_DISCOUNT)}
-    when Hash; t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + NESTING_DISCOUNT)}
+    when Array; t.inject(acc) {|s,v| sum_key(v, s, pre + nest_prefix)}
+    when Hash; t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + nest_prefix)}
     else raise ArgumentError, "bad type: #{t.inspect}"
     end
   end

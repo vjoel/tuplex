@@ -1,7 +1,9 @@
 require 'tuplex'
 
+TPX = Tuplex.new
+
 def show_sorted(a)
-  a.sort_by {|t| Tuplex.make_key(t)}.each {|t| p t}
+  a.sort_by {|t| TPX.make_key(t)}.each {|t| p t}
 end
 
 puts "\nIntegers are dominated by strings that differ in their high-order",

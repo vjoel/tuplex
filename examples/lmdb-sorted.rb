@@ -2,14 +2,14 @@ require 'tuplex'
 require 'lmdb'
 require 'tmpdir'
 
-include Tuplex
+TPX = Tuplex.new
 
 dir = Dir.mktmpdir
 env = LMDB.new dir
 db = @db = env.database("tuples", create: true, dupsort: true)
 
 def store t
-  @db[make_key(t)] = make_val(t)
+  @db[TPX.make_key(t)] = TPX.make_val(t)
 end
 
 (1..10).to_a.shuffle.each do |i|
@@ -20,13 +20,13 @@ end
 
 puts "\n\nIterating"
 db.each do |k,v|
-  p unpack_val(v)
+  p TPX.unpack_val(v)
 end
 
 print "\n\nSearching"
 db.each do |k,v|
   print "."
-  if val_equals_tuple(v, [1, 2, 5])
+  if TPX.val_equals_tuple(v, [1, 2, 5])
     print "found!"
     break
   end
@@ -35,13 +35,13 @@ puts
 
 print "\n\nFast lookup"
 t = [1, 2, 5]
-th = make_val_hash(t) # optimization
-key = make_key(t)
+th = TPX.make_val_hash(t) # optimization
+key = TPX.make_key(t)
 db.cursor do |c|
   k, v = c.set_range(key)
   while k == key
     print "."
-    if val_equals_tuple(v, t, th)
+    if TPX.val_equals_tuple(v, t, th)
       print "found!"
       break
     end

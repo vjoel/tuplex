@@ -1,42 +1,41 @@
 require 'msgpack'
 require 'siphash'
 
-module Tuplex
-  module_function
+class Tuplex
+  attr_reader :sip_key
+
+  DEFAULT_SIP_KEY = "Not secure, change it if you care!"[0..15]
+
+  def initialize sip_key = DEFAULT_SIP_KEY
+    @sip_key = sip_key
+  end
 
   # +t+ can be a tuple or a value in a tuple (that is, an entry in
   # an array or a value at some key in a hash).
   def signature t
     case t
-      when nil, true, false; 0
-      when Numeric; 1
-      when String, Symbol; 2
-      when Array
-        t.map {|v| signature(v)}
-      when Hash
-        t.each_with_object({}) {|(k,v), h| h[k] = signature(v)}
+      when nil, true, false;  0
+      when Numeric;           1
+      when String, Symbol;    2
+      when Array;             t.map {|v| signature(v)}
+      when Hash;              t.each_with_object({}) {|(k,v), h| h[k] = signature(v)}
       else raise ArgumentError, "cannot compute signature for #{t.inspect}"
     end
   end
 
-  SIP_KEY = "Not secure, change it if you care!"[0..15]
-
   # Lossy in terms of data types, but that's OK, since we have separate
   # sig_key (hash on types expressed as data) and val_hash.
-  def dhash t, sip_key = SIP_KEY
+  def dhash t
     case t
-    when nil;     dhash("nil", sip_key)
-    when true;    dhash("true", sip_key)
-    when false;   dhash("false", sip_key)
-    when Integer; dhash([t].pack("Q>"), sip_key)
-    when Float;   dhash([t].pack("G"), sip_key)
+    when nil;     dhash("nil")
+    when true;    dhash("true")
+    when false;   dhash("false")
+    when Integer; dhash([t].pack("Q>"))
+    when Float;   dhash([t].pack("G"))
     when String;  SipHash.digest(sip_key, t)
-    when Symbol;  dhash(t.to_s, sip_key)
-    when Array
-      dhash(t.map {|ti| dhash(ti, sip_key)}.join, sip_key)
-    when Hash
-      t.inject(0) {|acc,(k,v)|
-        acc ^ dhash([k,v], sip_key) }
+    when Symbol;  dhash(t.to_s)
+    when Array;   dhash(t.map {|ti| dhash(ti)}.join)
+    when Hash;    t.inject(0) {|acc,(k,v)| acc ^ dhash([k,v]) }
     else raise ArgumentError, "cannot hash #{t.inspect}"
     end
   end

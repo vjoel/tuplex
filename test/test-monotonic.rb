@@ -2,12 +2,12 @@ require 'minitest/autorun'
 require 'tuplex'
 
 class TestMonotonic < Minitest::Test
-  include Tuplex
+  TPX = Tuplex.new
 
   def make_key_pairs vals, frame = proc {|x| [x]}
     vals.sort.map { |x|
       t = frame[x]
-      [t, make_key(t)]
+      [t, TPX.make_key(t)]
     }
   end
 
@@ -32,7 +32,7 @@ class TestMonotonic < Minitest::Test
       assert_monotonic(make_key_pairs(ints+floats, frame))
     end
 
-    assert_equal(make_key(0), make_key(0.0))
+    assert_equal(TPX.make_key(0), TPX.make_key(0.0))
   end
 
   def test_strings
@@ -42,7 +42,7 @@ class TestMonotonic < Minitest::Test
       assert_monotonic(make_key_pairs(strs, frame))
     end
 
-    assert_equal(make_key(""), make_key("\0"))
+    assert_equal(TPX.make_key(""), TPX.make_key("\0"))
   end
 
   def test_overflow

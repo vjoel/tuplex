@@ -93,14 +93,14 @@ class Tuplex
   MAX_SUM_KEY_SIZE = 500
   def sum_key t, acc = "", pre = ""
     case t
-    when nil;   str_sum(acc, pre + "\0")
-    when false; str_sum(acc, pre + "\1")
-    when true;  str_sum(acc, pre + "\2")
-    when Numeric; str_sum(acc, pre + float_to_key(t.to_f))
-    when String; str_sum(acc, pre + t) # truncate here
-    when Symbol; str_sum(acc, pre + t.to_s) # and here
-    when Array; t.inject(acc) {|s,v| sum_key(v, s, pre + nest_prefix)}
-    when Hash; t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + nest_prefix)}
+    when nil;       str_sum(acc, pre + "\0")
+    when false;     str_sum(acc, pre + "\1")
+    when true;      str_sum(acc, pre + "\2")
+    when Numeric;   str_sum(acc, pre + float_to_key(t.to_f))
+    when String;    str_sum(acc, pre + t) # truncate here
+    when Symbol;    str_sum(acc, pre + t.to_s) # and here
+    when Array;     t.inject(acc) {|s,v| sum_key(v, s, pre + nest_prefix)}
+    when Hash;      t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + nest_prefix)}
     else raise ArgumentError, "bad type: #{t.inspect}"
     end
   end

@@ -97,8 +97,8 @@ class Tuplex
     when false;     str_sum(acc, pre + "\1")
     when true;      str_sum(acc, pre + "\2")
     when Numeric;   str_sum(acc, pre + float_to_key(t.to_f))
-    when String;    str_sum(acc, pre + t) # truncate here
-    when Symbol;    str_sum(acc, pre + t.to_s) # and here
+    when String;    str_sum(acc, pre + t[0..MAX_KEY_SIZE])
+    when Symbol;    str_sum(acc, pre + t.to_s[0..MAX_KEY_SIZE])
     when Array;     t.inject(acc) {|s,v| sum_key(v, s, pre + nest_prefix)}
     when Hash;      t.inject(acc) {|s,(k,v)| sum_key(v, s, pre + nest_prefix)}
     else raise ArgumentError, "bad type: #{t.inspect}"

@@ -47,9 +47,9 @@ And it's true for arbitrary nesting:
 
 However, for tuples of different signatures, the ordering depends only on the signature and not on term values:
 
-    >> Tuplex.make_key(["a", 0]) < Tuplex.make_key([0, "a"])
+    >> Tuplex.make_key(["a", 0]) > Tuplex.make_key([0, "a"])
     => true
-    >> Tuplex.make_key(["z", 1000]) < Tuplex.make_key([0, "a"])
+    >> Tuplex.make_key(["z", 1000]) > Tuplex.make_key([0, "a"])
     => true
 
 In other words, all tuples of signature (String, Number) are contiguous in the index, and that contiguous group is separate from tuples of signature (Number, String).

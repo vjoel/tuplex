@@ -26,30 +26,31 @@ These two tuples have the same signature: three elements of types string, number
 
 The index keys for these tuples are as follows:
 
-    >> Tuplex.make_key(["foo", 1, 2])
-    => "\x97\xB0kL\xA0\xC9\x00\xD1\x00hwn"
-    >> Tuplex.make_key(["foo", 1, 3])
-    => "\x97\xB0kL\xA0\xC9\x00\xD1\x00hwn\x00\b"
-    >> Tuplex.make_key(["foo", 1, 2]) < Tuplex.make_key(["foo", 1, 3])
+    >> tuplex = Tuplex.new
+    >> tuplex.make_key(["foo", 1, 2])
+    => "\xC1\x03\xC1!4M(\xE2\x00\x01\xE6_o"
+    >> tuplex.make_key(["foo", 1, 3])
+    => "\xC1\x03\xC1!4M(\xE2\x00\x01\xE6go"
+    >> tuplex.make_key(["foo", 1, 2]) < tuplex.make_key(["foo", 1, 3])
     => true
 
 So, the ordering `2<3` is preserved in the key strings (lexically ordered).
 
 This is also true when varying any number of terms, whether string or number:
 
-    >> Tuplex.make_key(["foo", 1, 2]) < Tuplex.make_key(["foozap", 7, 3])
+    >> tuplex.make_key(["foo", 1, 2]) < tuplex.make_key(["foozap", 7, 3])
     => true
 
 And it's true for arbitrary nesting:
 
-    >> Tuplex.make_key(["foo", {a: 1, b: [2]}]) < Tuplex.make_key(["foozap", {a: 7, b: [3]}])
+    >> tuplex.make_key(["foo", {a: 1, b: [2]}]) < tuplex.make_key(["foozap", {a: 7, b: [3]}])
     => true
 
 However, for tuples of different signatures, the ordering depends only on the signature and not on term values:
 
-    >> Tuplex.make_key(["a", 0]) > Tuplex.make_key([0, "a"])
+    >> tuplex.make_key([0, "a"]) < tuplex.make_key(["a", 0])
     => true
-    >> Tuplex.make_key(["z", 1000]) > Tuplex.make_key([0, "a"])
+    >> tuplex.make_key([1000, "z"]) < tuplex.make_key(["a", 0])
     => true
 
 In other words, all tuples of signature (String, Number) are contiguous in the index, and that contiguous group is separate from tuples of signature (Number, String).

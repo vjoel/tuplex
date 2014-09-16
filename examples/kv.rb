@@ -49,12 +49,12 @@ def db.find_in_range key, v_low, v_high
   cursor do |c|
     k_high = TPX.make_key(key => v_high)
     k, v = c.set_range(TPX.make_key(key => v_low))
-    while k and k <= k_high # replace with next_range when lmdb gem has it
+    while k
       h = TPX.unpack_val(v)
       if h.kind_of? Hash and h.keys == [key.to_s] and h[key.to_s].kind_of? String
         return h
       end
-      k, v = c.next
+      k, v = c.next_range(k_high)
     end
   end
   return nil
@@ -69,9 +69,9 @@ puts "db in tuplex-sorted order:"
 db.each {|t| printf("%20s: %s\n", *t.flatten)}
 
 puts
-puts "in key2, between 'hello' and 'z':"
+puts "in key2, first tuple between 'hello' and 'z':"
 p db.find_in_range :key2, "hello", "z"
-puts "in key2, between 'hello-key1' and 'z':"
+puts "in key2, first tuple between 'hello-key1' and 'z':"
 p db.find_in_range :key2, "hello-key1", "z"
 
 # specialized to Numeric vals
@@ -84,7 +84,7 @@ def db.find_all_in_multirange keys, t_low, t_high
     k_low  = TPX.make_key(t_low)
     k_high = TPX.make_key(t_high)
     k, v = c.set_range(k_low)
-    while k and k <= k_high # replace with next_range when lmdb gem has it
+    while k
       h = TPX.unpack_val(v)
       if h.kind_of? Hash and h.keys.sort == keys and # This and ...
          h.each {|key, value|
@@ -94,7 +94,7 @@ def db.find_all_in_multirange keys, t_low, t_high
           }
         yield h
       end
-      k, v = c.next
+      k, v = c.next_range(k_high)
     end
   end
   return nil
